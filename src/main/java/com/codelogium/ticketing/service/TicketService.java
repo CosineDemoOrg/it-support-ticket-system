@@ -17,6 +17,7 @@ public interface TicketService {
     List<Ticket> retrieveTicketsByCreator(Long userId);
 
     Ticket searchTicket(Long ticketId, Long userId, Status status);
+    Ticket searchTicketByMac(Long userId, String macId);
     List<AuditLog> retrieveAuditLogs(Long ticketId, Long userId);
     
 }

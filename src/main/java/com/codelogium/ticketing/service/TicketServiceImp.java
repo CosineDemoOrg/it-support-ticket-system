@@ -70,6 +70,7 @@ public class TicketServiceImp implements TicketService {
         updateIfNotNull(retrievedTicket::setDescription, dto.getDescription());
         updateIfNotNull(retrievedTicket::setCategory, dto.getCategory());
         updateIfNotNull(retrievedTicket::setPriority, dto.getPriority());
+        updateIfNotNull(retrievedTicket::setMacId, dto.getMacId());
 
         // Save ticket update
         return ticketRepository.save(retrievedTicket);
@@ -136,6 +137,13 @@ public class TicketServiceImp implements TicketService {
         Ticket ticket = unwrapTicket(ticketId, ticketRepository.findByTicketIdAndStatus(ticketId, status));   
         
         return ticket;
+    }
+
+    @Override
+    public Ticket searchTicketByMac(Long userId, String macId) {
+        validateUser(userId);
+
+        return unwrapTicket(-1L, ticketRepository.findByMacIdAndCreatorId(macId, userId));
     }
 
     @Override

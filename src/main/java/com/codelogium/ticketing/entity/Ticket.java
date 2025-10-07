@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +36,20 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "tickets")
 public class Ticket {
+    // Backward-compatible constructor (before macId was introduced)
+    public Ticket(Long id, String title, String description, Instant creationDate, Status status, Category category, Priority priority, User creator, List<Comment> comments) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.status = status;
+        this.category = category;
+        this.priority = priority;
+        this.macId = null;
+        this.creator = creator;
+        this.comments = comments != null ? comments : new ArrayList<>();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,6 +69,11 @@ public class Ticket {
     private Category category;
     @Enumerated(EnumType.STRING)
     private Priority priority;
+
+    // Optional MAC address associated with the ticket (e.g., laptop purchases)
+    @Column(name = "mac_id", length = 17)
+    @Pattern(regexp = "^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$", message = "MAC ID must be in format XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX")
+    private String macId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference

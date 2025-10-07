@@ -111,6 +111,17 @@ public class TicketController {
     }
 
     @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Ticket successfully found", content = @Content(schema = @Schema(implementation = Ticket.class))),
+        @ApiResponse(responseCode = "404", description = "Ticket or user not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+        @ApiResponse(ref = "#/components/responses/401")
+    })
+    @Operation(summary = "Search Ticket by MAC ID", description = "Search a user's ticket using the associated MAC ID")
+    @GetMapping("search-by-mac")
+    public ResponseEntity<Ticket> searchByMac(@PathVariable Long userId, @RequestParam String macId) {
+        return ResponseEntity.ok(ticketService.searchTicketByMac(userId, macId));
+    }
+
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Audit logs successfully retrieved", content = @Content(schema = @Schema(implementation = AuditLog.class))),
             @ApiResponse(responseCode = "404", description = "Ticket not found", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(ref = "#/components/responses/401"),
