@@ -43,9 +43,9 @@ public class CommentServiceImp implements CommentService {
         newComment.setCreatedAt(Instant.now());
         Comment createdComment = commentRepository.save(newComment);
 
-        // Log ticket creation
+        // Log comment creation (let JPA generate the audit log id)
         auditLogRepository.save(new AuditLog(
-            retrieveTicket.getId(),
+                null,
                 ticketId,
                 createdComment.getId(),
                 userId,
@@ -70,25 +70,24 @@ public class CommentServiceImp implements CommentService {
         Comment retrievedComment = unwrapComment(commentId,
                 commentRepository.findByIdAndTicketIdAndAuthorId(commentId, ticketId, userId));
         // Store old content value before making changes
-        String content = retrievedComment.getContent();
+        String oldContent = retrievedComment.getContent();
         updateIfNotNull(retrievedComment::setContent, newComment.getContent());
         updateIfNotNull(retrievedComment::setTicket, newComment.getTicket());
 
-        // if the user changed the content of the comment, update the timestamp
-        Comment savedComment = new Comment();
-        if (newComment.getContent().equals(retrievedComment.getContent())) {
+        // if the user changed the content of the comment, update the timestamp and log
+        Comment savedComment = retrievedComment;
+        if (newComment.getContent() != null && !newComment.getContent().equals(oldContent)) {
             updateIfNotNull(retrievedComment::setCreatedAt, Instant.now());
             // attempts to save comment
             savedComment = commentRepository.save(retrievedComment);
 
-            // Log ticket creation
             auditLogRepository.save(new AuditLog(
                     null,
                     ticket.getId(),
                     retrievedComment.getId(),
                     userId,
                     "COMMENT_UPDATED",
-                    content,
+                    oldContent,
                     retrievedComment.getContent(),
                     Instant.now()));
 

@@ -119,8 +119,8 @@ public class TicketController {
     @Operation(summary = "Audit Tickets Logs", description = "Retrieves audit logs of a ticket")
     @PreAuthorize("hasAuthority('IT_SUPPORT')")
     @GetMapping("/{ticketId}/audit-logs")
-    public ResponseEntity<List<AuditLog>> retrieveAuditLogs(@PathVariable Long ticketId) {
-        return ResponseEntity.ok(ticketService.retrieveAuditLogs(ticketId, ticketId));
+    public ResponseEntity<List<AuditLog>> retrieveAuditLogs(@PathVariable Long userId, @PathVariable Long ticketId) {
+        return ResponseEntity.ok(ticketService.retrieveAuditLogs(ticketId, userId));
     }
 
     @ApiResponses(value = {
